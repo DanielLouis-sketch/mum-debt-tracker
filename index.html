@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<h1>Mum’s Personal Debt Tracker</h1>
+
+<p class="about">
+  This website was made by <strong>Daniel Louis</strong> for his mum.
+  <br />
+  I am learning coding and building real projects to improve my skills.
+</p>
+
+<div class="muted">
+  Everything is saved automatically on this device/browser.
+</div>
+<body>
+  <div class="wrap">
+    <h1>Mum’s Personal Debt Tracker</h1>
+    <div class="muted">Everything is saved automatically on this device/browser.</div>
+
+    <div class="card">
+      <div class="grid">
+        <div>
+          <label>1) Customer Name</label>
+          <input id="name" type="text" placeholder="e.g., John Smith" />
+        </div>
+
+        <div>
+          <label>2) Amount Owing</label>
+          <input id="owing" type="number" step="0.01" min="0" placeholder="e.g., 200" />
+        </div>
+
+        <div>
+          <label>3) Amount Paid</label>
+          <input id="paid" type="number" step="0.01" min="0" placeholder="e.g., 50" />
+        </div>
+
+        <div>
+          <label>4) Amount Remaining (Auto)</label>
+          <input id="remaining" type="text" readonly />
+        </div>
+
+        <div>
+          <label>5) Payment Status (Auto)</label>
+          <input id="status" type="text" readonly />
+        </div>
+
+        <div>
+          <label>6) Final Remark</label>
+          <textarea id="remark" placeholder="e.g., Promised to pay next week"></textarea>
+        </div>
+
+        <div>
+          <label>&nbsp;</label>
+          <button class="btn-primary" id="addBtn" type="button">Add / Save</button>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-ghost" id="clearFormBtn" type="button">Clear Form</button>
+        <button class="btn-danger" id="wipeAllBtn" type="button">Delete ALL Records</button>
+        <div class="muted" id="editingHint"></div>
+      </div>
+    </div>
+
+    <div class="card toolbar">
+      <input class="search" id="search" type="text" placeholder="Search customer name..." />
+      <div class="muted" id="totals"></div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Customer</th>
+          <th class="right">Owing</th>
+          <th class="right">Paid</th>
+          <th class="right">Remaining</th>
+          <th>Status</th>
+          <th>Final Remark</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

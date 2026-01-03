@@ -1,0 +1,70 @@
+:root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+body { margin: 0; background:#f6f7fb; color:#111; }
+.wrap { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+
+h1 { margin: 0 0 10px; font-size: 22px; }
+
+.card {
+  background:#fff; border:1px solid #e6e8ef; border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.04);
+  padding: 16px; margin-bottom: 14px;
+}
+
+.muted { color:#5b6270; font-size: 12px; }
+
+.grid {
+  display:grid; gap: 10px;
+  grid-template-columns: 1.3fr 1fr 1fr 1fr 1.2fr 1.5fr auto;
+  align-items:end;
+}
+
+label { display:block; font-size: 12px; color:#444; margin: 0 0 6px; }
+
+input, textarea {
+  width: 100%; box-sizing: border-box;
+  border:1px solid #d7dbe7; border-radius: 10px;
+  padding: 10px 10px; font-size: 14px; background:#fff;
+}
+
+textarea { resize: vertical; min-height: 40px; }
+input[readonly] { background:#f4f6ff; }
+
+button {
+  border:0; border-radius: 10px; padding: 10px 12px;
+  cursor:pointer; font-weight: 600; font-size: 14px;
+}
+
+.btn-primary { background:#2d6cff; color:#fff; }
+.btn-ghost { background:#eef2ff; color:#1f2a44; }
+.btn-danger { background:#ffe8e8; color:#7a0b0b; }
+
+.form-actions {
+  display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; align-items:center;
+}
+
+.toolbar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
+.search { max-width: 360px; flex: 1; }
+
+table {
+  width: 100%; border-collapse: collapse; overflow:hidden;
+  border-radius: 14px; background:#fff; border:1px solid #e6e8ef;
+}
+
+th, td { padding: 10px 10px; border-bottom:1px solid #eef0f6; text-align:left; vertical-align:top; }
+th { font-size: 12px; color:#4a4f5a; background:#fafbff; }
+tr:last-child td { border-bottom: 0; }
+
+.right { text-align:right; }
+
+.pill {
+  display:inline-block; padding: 4px 10px; border-radius: 999px;
+  font-size: 12px; font-weight:700;
+}
+.ok { background:#e9fff0; color:#0b6b2a; border:1px solid #bff1cf; }
+.no { background:#fff1e5; color:#7a3c00; border:1px solid #ffd9b8; }
+
+.actions { display:flex; gap:8px; }
+
+@media (max-width: 980px){
+  .grid { grid-template-columns: 1fr 1fr; }
+}
