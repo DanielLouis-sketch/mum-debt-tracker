@@ -1,20 +1,29 @@
 <!doctype html>
 <html lang="en">
-<h1>Mum’s Personal Debt Tracker</h1>
-
-<p class="about">
-  This website was made by <strong>Daniel Louis</strong> for his mum.
-  <br />
-  I am learning coding and building real projects to improve my skills.
-</p>
-
-<div class="muted">
-  Everything is saved automatically on this device/browser.
-</div>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mum’s Personal Debt Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
 <body>
   <div class="wrap">
-    <h1>Mum’s Personal Debt Tracker</h1>
-    <div class="muted">Everything is saved automatically on this device/browser.</div>
+    <div class="topbar">
+      <div>
+        <h1 class="title">Mum’s Personal Debt Tracker</h1>
+        <p class="about">
+          This website was made by <strong>Daniel Louis</strong> for his mum.
+          <br />
+          I am learning coding and building real projects to improve my skills.
+        </p>
+        <div class="muted">Everything is saved automatically on this device/browser.</div>
+      </div>
+
+      <div class="topbar-actions">
+        <div class="muted" id="loggedInAs"></div>
+        <button class="btn-ghost" id="logoutBtn" type="button">Logout</button>
+      </div>
+    </div>
 
     <div class="card">
       <div class="grid">
@@ -69,6 +78,7 @@
     <table>
       <thead>
         <tr>
+          <th class="checkcol"></th>
           <th>Customer</th>
           <th class="right">Owing</th>
           <th class="right">Paid</th>

@@ -1,4 +1,32 @@
 const STORAGE_KEY = "mum_debt_tracker_v1";
+const AUTH_KEY = "mum_debt_auth_v1";
+const VALID_USER = "nkechilouis";
+
+function requireAuth() {
+  try {
+    const raw = localStorage.getItem(AUTH_KEY);
+    if (!raw) {
+      window.location.href = "login.html";
+      return false;
+    }
+    const a = JSON.parse(raw);
+    if (!a || a.user !== VALID_USER) {
+      window.location.href = "login.html";
+      return false;
+    }
+    return true;
+  } catch {
+    window.location.href = "login.html";
+    return false;
+  }
+}
+
+if (!requireAuth()) {
+  // stop the rest of the file from running on unauthenticated access
+  throw new Error("Not authenticated");
+}
+
+const UI_KEY = "mum_debt_ui_v1"; // stores small UI preferences (like show/hide checked)
 
 const el = (id) => document.getElementById(id);
 
@@ -18,8 +46,26 @@ const searchEl = el("search");
 const totalsEl = el("totals");
 const editingHintEl = el("editingHint");
 
+const logoutBtn = el("logoutBtn");
+const loggedInAsEl = el("loggedInAs");
+
 let data = load();
 let editingId = null;
+
+let ui = loadUI();
+
+function loadUI() {
+  try {
+    const raw = localStorage.getItem(UI_KEY);
+    return raw ? { showChecked: true, ...JSON.parse(raw) } : { showChecked: true };
+  } catch {
+    return { showChecked: true };
+  }
+}
+
+function saveUI() {
+  localStorage.setItem(UI_KEY, JSON.stringify(ui));
+}
 
 function toMoney(n) {
   const x = Number(n);
@@ -74,56 +120,128 @@ function escapeHtml(str) {
     .replaceAll("'", "&#039;");
 }
 
+function setLoggedInText() {
+  try {
+    const a = JSON.parse(localStorage.getItem(AUTH_KEY) || "{}");
+    loggedInAsEl.textContent = a.user ? `Logged in as: ${a.user}` : "";
+  } catch {
+    loggedInAsEl.textContent = "";
+  }
+}
+
+function toggleChecked(id, isChecked) {
+  const idx = data.findIndex((x) => x.id === id);
+  if (idx === -1) return;
+  data[idx].checked = !!isChecked;
+  data[idx].updatedAt = Date.now();
+  save();
+  render();
+}
+
+function renderSeparatorRow(checkedCount) {
+  const tr = document.createElement("tr");
+  tr.className = "checked-separator";
+  tr.innerHTML = `
+    <td colspan="8">
+      <button type="button" class="checked-toggle" id="toggleCheckedBtn">
+        ${ui.showChecked ? "▾" : "▸"} ${checkedCount} checked record${checkedCount === 1 ? "" : "s"}
+      </button>
+    </td>
+  `;
+  rowsEl.appendChild(tr);
+
+  const btn = tr.querySelector("#toggleCheckedBtn");
+  btn.addEventListener("click", () => {
+    ui.showChecked = !ui.showChecked;
+    saveUI();
+    render();
+  });
+}
+
+function renderRow(r) {
+  const owing = num(r.owing);
+  const paid = num(r.paid);
+  const remaining = calcRemaining(owing, paid);
+  const status = calcStatus(owing, paid);
+
+  const tr = document.createElement("tr");
+  if (r.checked) tr.classList.add("checked-row");
+
+  tr.innerHTML = `
+    <td class="checkcol">
+      <input class="rowcheck" type="checkbox" ${r.checked ? "checked" : ""} data-check="${r.id}" aria-label="Mark as checked" />
+    </td>
+    <td><strong>${escapeHtml(r.name || "")}</strong></td>
+    <td class="right">${toMoney(owing)}</td>
+    <td class="right">${toMoney(paid)}</td>
+    <td class="right">${toMoney(remaining)}</td>
+    <td>
+      <span class="pill ${status === "Payment Completed" ? "ok" : "no"}">
+        ${status}
+      </span>
+    </td>
+    <td>${escapeHtml(r.remark || "")}</td>
+    <td>
+      <div class="actions">
+        <button class="btn-ghost" type="button" data-edit="${r.id}">Edit</button>
+        <button class="btn-danger" type="button" data-del="${r.id}">Delete</button>
+      </div>
+    </td>
+  `;
+  rowsEl.appendChild(tr);
+}
+
 function render() {
   const q = searchEl.value.trim().toLowerCase();
+
   const filtered = !q
     ? data
     : data.filter((r) => (r.name || "").toLowerCase().includes(q));
 
+  // Keep-style behavior: unchecked items on top, checked items move down
+  const unchecked = filtered.filter((r) => !r.checked);
+  const checked = filtered.filter((r) => !!r.checked);
+
   rowsEl.innerHTML = "";
 
+  // Totals should count ALL records in filtered list (both checked & unchecked)
   let totalOwing = 0, totalPaid = 0, totalRemaining = 0;
 
   for (const r of filtered) {
     const owing = num(r.owing);
     const paid = num(r.paid);
     const remaining = calcRemaining(owing, paid);
-    const status = calcStatus(owing, paid);
-
     totalOwing += owing;
     totalPaid += paid;
     totalRemaining += remaining;
+  }
 
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td><strong>${escapeHtml(r.name || "")}</strong></td>
-      <td class="right">${toMoney(owing)}</td>
-      <td class="right">${toMoney(paid)}</td>
-      <td class="right">${toMoney(remaining)}</td>
-      <td>
-        <span class="pill ${status === "Payment Completed" ? "ok" : "no"}">
-          ${status}
-        </span>
-      </td>
-      <td>${escapeHtml(r.remark || "")}</td>
-      <td>
-        <div class="actions">
-          <button class="btn-ghost" type="button" data-edit="${r.id}">Edit</button>
-          <button class="btn-danger" type="button" data-del="${r.id}">Delete</button>
-        </div>
-      </td>
-    `;
-    rowsEl.appendChild(tr);
+  // Render unchecked first
+  for (const r of unchecked) renderRow(r);
+
+  // Then checked section
+  if (checked.length > 0) {
+    renderSeparatorRow(checked.length);
+
+    if (ui.showChecked) {
+      for (const r of checked) renderRow(r);
+    }
   }
 
   totalsEl.textContent =
     `Totals — Owing: ${toMoney(totalOwing)} | Paid: ${toMoney(totalPaid)} | Remaining: ${toMoney(totalRemaining)}`;
 
+  // wire actions (edit/delete)
   rowsEl.querySelectorAll("[data-edit]").forEach((btn) => {
     btn.addEventListener("click", () => startEdit(btn.getAttribute("data-edit")));
   });
   rowsEl.querySelectorAll("[data-del]").forEach((btn) => {
     btn.addEventListener("click", () => remove(btn.getAttribute("data-del")));
+  });
+
+  // wire checkboxes
+  rowsEl.querySelectorAll("[data-check]").forEach((cb) => {
+    cb.addEventListener("change", () => toggleChecked(cb.getAttribute("data-check"), cb.checked));
   });
 }
 
@@ -156,12 +274,15 @@ function upsert() {
     return;
   }
 
+  const existing = editingId ? data.find((x) => x.id === editingId) : null;
+
   const record = {
     id: editingId || crypto.randomUUID(),
     name,
     owing,
     paid,
     remark,
+    checked: existing ? !!existing.checked : false, // keep checked state when editing
     updatedAt: Date.now(),
   };
 
@@ -214,11 +335,18 @@ function wipeAll() {
   clearForm();
 }
 
+function logout() {
+  localStorage.removeItem(AUTH_KEY);
+  window.location.href = "login.html";
+}
+
 addBtn.addEventListener("click", upsert);
 clearFormBtn.addEventListener("click", clearForm);
 wipeAllBtn.addEventListener("click", wipeAll);
 searchEl.addEventListener("input", render);
+logoutBtn.addEventListener("click", logout);
 
 // initial
+setLoggedInText();
 updateCalculatorPreview();
 render();
