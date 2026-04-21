@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mum’s Personal Debt Tracker</title>
+  <title>Mum's Personal Debt Tracker</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="wrap">
     <div class="topbar">
       <div>
-        <h1 class="title">Mum’s Personal Debt Tracker</h1>
+        <h1 class="title">Mum's Personal Debt Tracker</h1>
         <p class="about">
           This website was made by <strong>Daniel Louis</strong> for his mum.
           <br />
@@ -21,6 +21,7 @@
 
       <div class="topbar-actions">
         <div class="muted" id="loggedInAs"></div>
+        <button class="btn-history-global" id="historyBtn" type="button">🕓 Payment History</button>
         <button class="btn-ghost" id="logoutBtn" type="button">Logout</button>
       </div>
     </div>
@@ -38,8 +39,11 @@
         </div>
 
         <div>
-          <label>3) Amount Paid</label>
-          <input id="paid" type="number" step="0.01" min="0" placeholder="e.g., 50" />
+          <label>3) Amount Paid
+            <span class="label-tip">supports +150000, -5000, or a new total</span>
+          </label>
+          <input id="paid" type="text" placeholder="e.g., 150000 or +50000 or -5000" autocomplete="off" />
+          <div class="paid-hint" id="paidHint"></div>
         </div>
 
         <div>
@@ -90,6 +94,17 @@
       </thead>
       <tbody id="rows"></tbody>
     </table>
+  </div>
+
+  <!-- History Modal -->
+  <div class="modal-backdrop" id="historyModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 class="modal-title" id="historyModalTitle">Payment History</h2>
+        <button class="modal-close" id="historyModalClose" type="button" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body" id="historyModalBody"></div>
+    </div>
   </div>
 
   <script src="app.js"></script>
