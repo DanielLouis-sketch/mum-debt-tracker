@@ -70,6 +70,7 @@ function num(n) {
 }
 
 function calcRemaining(owing, paid) { return Math.max(0, num(owing) - num(paid)); }
+// Amount Paid is always deducted from remaining balance, not reset against owing
 
 function calcStatus(owing, paid) {
   return calcRemaining(owing, paid) <= 0 && num(owing) > 0
@@ -103,7 +104,7 @@ function evaluatePaidInput(rawValue, currentPaid) {
 
   const plain = parseFloat(val);
   if (!isNaN(plain) && plain >= 0) {
-    return { newPaid: plain, delta: plain - num(currentPaid), op: "set" };
+    return { newPaid: Math.max(0, num(currentPaid) + plain), delta: +plain, op: "add" };
   }
   return null; // invalid
 }
